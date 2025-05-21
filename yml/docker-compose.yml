@@ -1,0 +1,30 @@
+version: "3.8"                                 # Compose file format version
+
+services:
+  gapminder-dev:                              # Service name; used by docker-compose commands
+    image: gapminder:dev            # Image name and tag that this service will build/run
+    build:                                    # Build instructions for this service
+      context: .                              #   Build context: send current directory (.) to Docker daemon
+      dockerfile: Dockerfile                  #   (optional) specify a custom Dockerfile; defaults to “Dockerfile”
+    ports:                                    # Port mappings from host → container
+      - "8501:8501"                           #   Expose container’s 8501 on host’s 8501 for Streamlit UI
+    volumes:                                  # Mount host paths into the container
+      - ./src:/app/src                        #   Sync local code for live editing inside /app/src
+      - ./data/processed:/app/data/processed  #   Sync processed CSV so the app always sees latest data
+    environment:                              # Environment variables passed into the container
+      - STREAMLIT_SERVER_RUN_ON_SAVE=true     #   Tell Streamlit to auto-reload when source files change
+      - STREAMLIT_SERVER_HEADLESS=true        #   Run in headless mode (no browser popup)
+      - STREAMLIT_SERVER_ENABLECORS=false     #   Disable CORS restrictions for easier local testing
+    command: >                                # Override the default CMD/ENTRYPOINT if needed
+      streamlit run src/app.py                #   Launch Streamlit against your app file
+      --server.port=8501                      #   Bind Streamlit server to port 8501
+      --server.address=0.0.0.0                #   Listen on all network interfaces, not just localhost
+    restart: on-failure                       # Restart policy: restart container only on failures
+
+
+
+#build.context tells Compose where to look for your Dockerfile and code.
+#volumes let you edit code/data locally and see changes instantly in the dev container.
+#environment flags configure Streamlit’s behavior for dev convenience.2
+#command overrides the container’s default startup (so you get live‐reload).
+#restart keeps the service running if it crashes during development.
