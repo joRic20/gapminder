@@ -29,7 +29,7 @@ st.sidebar.header("Controls")
 selected_countries = st.sidebar.multiselect(
     label="Select Countries",
     options=countries,
-    default=countries[:5]
+    default=countries[:20]
 )
 
 # Filter data
